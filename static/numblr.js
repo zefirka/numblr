@@ -740,13 +740,13 @@ var Numblr = (function () {
                     <a href="${post.url}/"><i class="fas fa-link"></i></a>
                     &nbsp;
                     <div ?hidden=${!post.rebloggedRoot}>
-                        <i class="fas fa-user"></i>&nbsp;<a href="/folder/${post.rebloggedRoot}/"
+                        <i class="fas fa-user"></i>&nbsp;<a href="/account/${post.rebloggedRoot}/"
                             >${post.rebloggedRoot}</a
                         >
                     </div>
                 </div>
                 <div class="nowrap" ?hidden=${!post.reblogged || post.rebloggedRoot === post.reblogged}>
-                    <i class="fas fa-share-square"></i>&nbsp;<a href="/folder/${post.reblogged}/">${post.reblogged}</a>
+                    <i class="fas fa-share-square"></i>&nbsp;<a href="/account/${post.reblogged}/">${post.reblogged}</a>
                 </div>
             </div>
         `;
