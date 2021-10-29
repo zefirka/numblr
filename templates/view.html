@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" href="/styles.css" />
+        <link rel="stylesheet" href="/index.css" />
         <script src="https://kit.fontawesome.com/cd52671a6b.js" crossorigin="anonymous"></script>
         <script>window.__DATA__ = {{configs}};</script>
         <script>window.__DATA__.account = '{{folder}}';</script>
@@ -30,9 +30,14 @@
             <div class='next'></div>
         </div>
         <div id="End">
-            Load more
+            <div id="Loader" class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+            <button>Load more</button>
         </div>
     
         <script type="text/javascript" src="/numblr.js"></script>
+        <script src="https://storage.yandexcloud.net/webfella/webfella.min.js" type="text/javascript"></script>
+        <script>
+            Webfella();
+        </script>
     </body>
 </html>

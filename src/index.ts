@@ -99,7 +99,7 @@ app.get('/items/saved/:offset', (req, res) => {
     const {offset} = req.params;
     const data = read('saved', Number(offset), req.query).map((img) => {
         return {
-            photos: ['/saved/' + img],
+            photos: [{thumb: '/saved/' + img, hres: '/saved/' + img}],
         };
     });
     return res.json({items: data});

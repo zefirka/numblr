@@ -1,7 +1,8 @@
-
+import fs from 'fs';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
+import scss from 'rollup-plugin-scss';
 import {terser} from 'rollup-plugin-terser';
 
 const getCfg = (min) => ({
@@ -20,6 +21,12 @@ const getCfg = (min) => ({
             tsconfig: './src/client/tsconfig.json',
             useTsconfigDeclarationDir: true,
             objectHashIgnoreUnknownHack: true,
+        }),
+        scss({
+            output: (styles) => {
+                fs.writeFileSync('./static/index.css', styles);
+            },
+            bundle: 'index.css',
         }),
         commonjs(),
         resolve(),

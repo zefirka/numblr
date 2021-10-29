@@ -3,21 +3,36 @@ import axios from 'axios';
 import {noop} from 'lodash';
 
 const parseFromUrl = (url = '') => {
-    return url.replace(/\.tumblr\.com.+$/, '').replace('https://', '');
+    const res = url.replace(/\.tumblr\.com.+$/, '').replace('https://', '');
+
+    if (res.includes('deactivated')) {
+        return '';
+    }
+
+    return res;
 };
 
 const getPhotosFromPost = (post: TumblrPost) => {
     const photos = [];
+
     if (post['photo-url']) {
         const list = post['photo-url'];
-        console.log('list', list);
-        const probePhoto = list.find(({$}) => {
-            const mw = $['max-width'];
-            return mw && Number(mw) <= 400 && Number(mw) >= 150;
-        });
+        const max = list[0]._;
+        const probePhoto = list
+            .sort((a, b) => {
+                return (Number(a.$['max-width']) || 0) - (Number(b.$['max-width']) || 0);
+            })
+            .find(({$}) => {
+                const mw = $['max-width'];
+                return mw && 300 && Number(mw) >= 120;
+            });
 
-        probePhoto && photos.push(probePhoto._ || list[0]._);
+        photos.push({
+            thumb: probePhoto ? probePhoto._ : max,
+            hres: max,
+        });
     }
+
     if (post['regular-body']) {
         let body = post['regular-body'];
         body = Array.isArray(body) ? body.join('') : body;
@@ -25,7 +40,7 @@ const getPhotosFromPost = (post: TumblrPost) => {
 
         let n = r.next();
         while (!n.done) {
-            photos.push(n.value[1]);
+            photos.push({thumb: n.value[1], hres: n.value[1]});
             n = r.next();
         }
     }
@@ -43,6 +58,7 @@ export type TumblrPost = {
     'regular-body': string | string[];
     photoset: unknown[];
 };
+
 type TumblrData = {
     tumblr: {
         posts: [
@@ -59,7 +75,7 @@ export type PostMap = {
     reblogged?: string;
     rebloggedRoot?: string;
     photoset: unknown[];
-    photos: string[];
+    photos: {thumb: string; hres: string}[];
 };
 
 export default class Crawler {

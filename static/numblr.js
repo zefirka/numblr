@@ -545,6 +545,7 @@ var Numblr = (function () {
               }
               e.preventDefault();
               if (el.tagName === 'IMG') {
+                  const img = el;
                   if (e.metaKey || e.ctrlKey) {
                       fetch('/download', {
                           method: 'POST',
@@ -552,7 +553,7 @@ var Numblr = (function () {
                               'Content-Type': 'application/json',
                           },
                           body: JSON.stringify({
-                              url: el.src,
+                              url: img.dataset.orig || img.src,
                           }),
                       })
                           .then((d) => d.json())
@@ -565,7 +566,7 @@ var Numblr = (function () {
                           .catch(alert);
                   }
                   else if (e.altKey) {
-                      this.downloadDirect(el.src);
+                      this.downloadDirect(img.dataset.orig || img.src);
                   }
                   else {
                       const isZoom = el.classList.toString() == 'big';
@@ -573,7 +574,7 @@ var Numblr = (function () {
                           this.select();
                       }
                       else {
-                          this.select(el);
+                          this.select(img);
                       }
                       this.$overlay.style.display = this.$overlay.style.display === 'block' ? 'none' : 'block';
                       if (this.$overlay.style.display === 'none') {
@@ -647,6 +648,18 @@ var Numblr = (function () {
               this.setTimer(Math.max(1000, this.state.timerSec - 1000));
           };
       }
+      get minColIdx() {
+          const [a, b, c] = this.state.colh;
+          if (a + b + c === 0) {
+              return ((Math.random() * 10) >> 0) % 3;
+          }
+          const minVal = Math.min(...this.state.colh);
+          const result = this.state.colh.indexOf(minVal);
+          if (result === -1) {
+              throw new Error('Invalud case @TODO');
+          }
+          return result;
+      }
       downloadDirect(url) {
           const name = url.split('/').pop();
           fetch(url, {
@@ -654,8 +667,8 @@ var Numblr = (function () {
           })
               .then((response) => response.blob())
               .then((response) => {
-              var url = window.URL.createObjectURL(response);
-              var a = document.createElement('a');
+              const url = window.URL.createObjectURL(response);
+              const a = document.createElement('a');
               a.href = url;
               a.download = name;
               document.body.appendChild(a);
@@ -699,15 +712,23 @@ var Numblr = (function () {
           const nextEl = document.querySelector(`[data-idx="${nextIdx}"]`);
           this.select(nextEl);
       }
-      renderPost(post, onClick) {
+      renderPost(post, onClick, col) {
           const images = [];
           post.photos.forEach((url) => {
               images.push(p `
                 <figure class="fig">
-                    <img src="${url}" data-post="${post.idx}" data-idx="${this.state.imgIdx}" />
-                    <button class="save" type="button" data-src="${url}" @click=${onClick}>
-                        <i class="fas fa-save fa-3]x"></i>
-                    </button>
+                    <img
+                        src="${url.thumb}"
+                        data-orig="${url.hres}"
+                        data-col="${col} "
+                        data-post="${post.idx}"
+                        data-idx="${this.state.imgIdx}"
+                    />
+                    <div class="controls">
+                        <button class="save" type="button" data-src="${url.hres}" @click=${onClick}>
+                            <i class="fas fa-save fa"></i>
+                        </button>
+                    </div>
                 </figure>
             `);
               this.state.imgIdx += 1;
@@ -715,29 +736,53 @@ var Numblr = (function () {
           return p `
             <div class="post-imgs">${images}</div>
             <div class="post-caption">
-                <div><a href="/folder/${post.reblogged}/">${post.reblogged}</a></div>
-                <div><a href="/folder/${post.rebloggedRoot}/">${post.rebloggedRoot}</a></div>
+                <div class="nowrap">
+                    <a href="${post.url}/"><i class="fas fa-link"></i></a>
+                    &nbsp;
+                    <div ?hidden=${!post.rebloggedRoot}>
+                        <i class="fas fa-user"></i>&nbsp;<a href="/folder/${post.rebloggedRoot}/"
+                            >${post.rebloggedRoot}</a
+                        >
+                    </div>
+                </div>
+                <div class="nowrap" ?hidden=${!post.reblogged || post.rebloggedRoot === post.reblogged}>
+                    <i class="fas fa-share-square"></i>&nbsp;<a href="/folder/${post.reblogged}/">${post.reblogged}</a>
+                </div>
             </div>
         `;
       }
       setLoading(t) {
           this.$end.classList[t ? 'add' : 'remove']('loading');
-          End.innerText = t ? 'Loading' : '';
       }
       render(posts) {
-          posts.forEach((post, i) => {
+          if (!posts.length) {
+              posts.push({
+                  url: '',
+                  idx: Infinity,
+                  photoset: [],
+                  photos: [{ thumb: '/imgs/notfound.png', hres: '/img/notfound.png' }],
+              });
+          }
+          posts.forEach((post) => {
               const postElem = document.createElement('div');
               postElem.classList.add('post');
-              w(this.renderPost(post, {
-                  handleEvent(e) {
+              const col = this.minColIdx;
+              const tpl = this.renderPost(post, {
+                  handleEvent: (e) => {
                       const url = e.target.dataset['src'] || '';
                       this.downloadDirect(url);
                   },
-              }), postElem);
-              const col = this.state.nextCol;
+              }, col);
+              w(tpl, postElem);
+              this.state.colh[col] += 300;
               console.log('Appendind to ', col);
               this.$cols[col].append(postElem);
-              this.state.nextCol = (this.state.nextCol + 1) % 3;
+              postElem.querySelectorAll('img').forEach((img) => {
+                  img.onload = () => {
+                      this.state.colh[col] = this.state.colh[col] - 300 + img.clientHeight;
+                      img.onload = null;
+                  };
+              });
           });
       }
       async loadNext() {
@@ -759,12 +804,25 @@ var Numblr = (function () {
       recordTimer() {
           this.$timer.secs.innerText = String(this.state.timerSec / 1000);
       }
+      swap(i, dir = 1) {
+          if (dir === 1) {
+              i.setAttribute('data-thumb', i.src);
+              i.src = i.dataset.orig || i.src;
+          }
+          else {
+              i.setAttribute('data-orig', i.src);
+              i.src = i.dataset.thumb || i.src;
+          }
+      }
       select(el) {
-          var _a;
-          (_a = document.querySelector('.big')) === null || _a === void 0 ? void 0 : _a.classList.remove('big');
+          const curBig = document.querySelector('.big');
+          if (curBig) {
+              curBig.classList.remove('big');
+              this.swap(curBig, -1);
+          }
           if (el) {
+              this.swap(el, 1);
               el.classList.add('big');
-              debugger;
               this.$timer.$.style.display = 'block';
           }
           else {
