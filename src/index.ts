@@ -125,11 +125,10 @@ app.get('/', (req, res) => {
     res.send(render(resolve(__DIR, 'templates/index.html'), data));
 });
 
-app.get('/folder/:folder', (req, res) => {
-    console.log('config', config);
+app.get('/account/:account', (req, res) => {
     res.send(
         render(resolve(__DIR, 'templates/view.html'), {
-            folder: req.params.folder,
+            account: req.params.account,
             configs: JSON.stringify(config),
         }),
     );

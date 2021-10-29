@@ -7,6 +7,7 @@
 2. Build and start server:
 
 ```
+npm install
 npm run build
 npm start
 ```

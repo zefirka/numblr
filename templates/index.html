@@ -1,25 +1,18 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <style>
-            body {
-                background: #333;
-                margin: 0;
-                padding: 0;
-                font-family: "Helvetica Neue", Helvetica, sans-serif;
-            }
-
-            div {
-                padding: 4px 16px;
-                font-size: 16px;
-            }
-
-            a, a:visited {
-                color: #eee;
-            }
-        </style>
+        <link rel="stylesheet" href="/index.css" />
     </head>
+    <script>
+        function go() {
+            window.location.pathname = '/account/' + document.querySelector('.general-input').value.replace('tumblr.com', '');
+        }
+    </script>
     <body>
-       {{folders}}
+        <div class="general">
+            <input class="general-input" placeholder="example.tumblr.com" />
+            &nbsp;
+            <button onclick="go()">Go</button>
+        </div>
     </body>
 </html>
