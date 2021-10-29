@@ -1,4 +1,3 @@
-import axios from 'axios';
 import {html, render} from 'lit-html';
 import debounce from 'lodash/debounce';
 import type {PostMap} from '../crawler';
@@ -54,6 +53,12 @@ class App {
         window.addEventListener('scroll', this.onScroll);
         document.addEventListener('keydown', this.onKeydown);
         document.addEventListener('click', this.onClick);
+        this.$overlay.querySelector('.next')?.addEventListener('click', () => {
+            this.showDir(1);
+        });
+        this.$overlay.querySelector('.prev')?.addEventListener('click', () => {
+            this.showDir(-1);
+        });
         this.$timer.toggle.onclick = this.toggleTimer;
         this.$timer.plus.onclick = () => {
             this.setTimer(Math.min(100000, this.state.timerSec + 1000));
@@ -84,7 +89,7 @@ class App {
 
         if (el.tagName === 'IMG') {
             if (e.metaKey || e.ctrlKey) {
-                fetch(`http://localhost:8081/download`, {
+                fetch('/download', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -126,8 +131,8 @@ class App {
         })
             .then((response) => response.blob())
             .then((response) => {
-                var url = window.URL.createObjectURL(response);
-                var a = document.createElement('a');
+                const url = window.URL.createObjectURL(response);
+                const a = document.createElement('a');
                 a.href = url;
                 a.download = name;
                 document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
@@ -245,7 +250,7 @@ class App {
     }
 
     private render(posts: PostMap[]) {
-        posts.forEach((post, i) => {
+        posts.forEach((post) => {
             const postElem = document.createElement('div');
             postElem.classList.add('post');
             render(
@@ -269,7 +274,7 @@ class App {
         this.setLoading(true);
         try {
             const imgs = await fetch(
-                App.API_URL + '/items/' + App.ACCOUNT + '/' + this.state.offset + (window.location.search || ''),
+                '/items/' + App.ACCOUNT + '/' + this.state.offset + (window.location.search || ''),
             ).then((d) => d.json());
             this.render(imgs.items);
         } catch (err) {
@@ -291,7 +296,6 @@ class App {
 
         if (el) {
             el.classList.add('big');
-            debugger;
             this.$timer.$.style.display = 'block';
         } else {
             this.$timer.$.style.display = 'none';

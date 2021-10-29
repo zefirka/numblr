@@ -56,6 +56,9 @@ img {
 
 #Overlay {
     display: none;
+}
+
+.overlay {
     position: fixed;
     background: #333;
     z-index: 3;
@@ -125,11 +128,12 @@ button {
 .next {
     z-index: 50;
     background-color: white;
-    opacity: 0.3;
+    opacity: 0;
     position: fixed;
     width: 30%;
     height: 100vh;
     top: 0;
+    cursor: pointer;
 }
 
 .prev {

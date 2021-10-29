@@ -546,7 +546,7 @@ var Numblr = (function () {
               e.preventDefault();
               if (el.tagName === 'IMG') {
                   if (e.metaKey || e.ctrlKey) {
-                      fetch(`http://localhost:8081/download`, {
+                      fetch('/download', {
                           method: 'POST',
                           headers: {
                               'Content-Type': 'application/json',
@@ -625,6 +625,7 @@ var Numblr = (function () {
           this.start();
       }
       start() {
+          var _a, _b;
           this.loadNext();
           this.$end.addEventListener('click', () => {
               this.loadNext();
@@ -632,6 +633,12 @@ var Numblr = (function () {
           window.addEventListener('scroll', this.onScroll);
           document.addEventListener('keydown', this.onKeydown);
           document.addEventListener('click', this.onClick);
+          (_a = this.$overlay.querySelector('.next')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+              this.showDir(1);
+          });
+          (_b = this.$overlay.querySelector('.prev')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
+              this.showDir(-1);
+          });
           this.$timer.toggle.onclick = this.toggleTimer;
           this.$timer.plus.onclick = () => {
               this.setTimer(Math.min(100000, this.state.timerSec + 1000));
@@ -736,7 +743,7 @@ var Numblr = (function () {
       async loadNext() {
           this.setLoading(true);
           try {
-              const imgs = await fetch(App.API_URL + '/items/' + App.ACCOUNT + '/' + this.state.offset + (window.location.search || '')).then((d) => d.json());
+              const imgs = await fetch('/items/' + App.ACCOUNT + '/' + this.state.offset + (window.location.search || '')).then((d) => d.json());
               this.render(imgs.items);
           }
           catch (err) {
