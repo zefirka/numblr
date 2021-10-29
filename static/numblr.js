@@ -712,8 +712,17 @@ var Numblr = (function () {
           const nextEl = document.querySelector(`[data-idx="${nextIdx}"]`);
           this.select(nextEl);
       }
+      prefetch(photos) {
+          photos.forEach(({ hres }) => {
+              setTimeout(() => {
+                  const img = new Image();
+                  img.src = hres;
+              });
+          });
+      }
       renderPost(post, onClick, col) {
           const images = [];
+          this.prefetch(post.photos);
           post.photos.forEach((url) => {
               images.push(p `
                 <figure class="fig">

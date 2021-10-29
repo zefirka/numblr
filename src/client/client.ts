@@ -237,9 +237,18 @@ class App {
         this.select(nextEl);
     }
 
+    private prefetch(photos: PostMap['photos']) {
+        photos.forEach(({hres}) => {
+            setTimeout(() => {
+                const img = new Image();
+                img.src = hres;
+            });
+        });
+    }
+
     private renderPost(post: PostMap, onClick: {handleEvent: (e: MouseEvent) => void}, col: number) {
         const images: TemplateResult[] = [];
-
+        this.prefetch(post.photos);
         post.photos.forEach((url) => {
             images.push(html`
                 <figure class="fig">
