@@ -1,0 +1,6 @@
+.DS_Store
+static/saved/*
+cache
+node_modules
+.vscode
+build

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/styles.css" />
+        <script src="https://kit.fontawesome.com/cd52671a6b.js" crossorigin="anonymous"></script>
+        <script>window.__DATA__ = {{configs}};</script>
+        <script>window.__DATA__.account = '{{folder}}';</script>
+    </head>
+    <body>
+        <div id="Timer">
+            <button class="toggle" role="button" type="button">
+                <i class="fas fa-play"></i>
+            </button>
+            <button class="plus" role="button" type="button">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="minus" role="button" type="button">
+                <i class="fas fa-minus"></i>
+            </button>
+            <span class="secs"></span>
+        </div>
+        <div id="Body">
+            <div id="Col0" class="column"></div>
+            <div id="Col1" class="column"></div>
+            <div id="Col2" class="column"></div>
+        </div>
+        <div id="Overlay">
+            <div class='prev'></div>
+            <div class='next'></div>
+        </div>
+        <div id="End">
+            Load more
+        </div>
+    
+        <script type="text/javascript" src="/numblr.js"></script>
+    </body>
+</html>

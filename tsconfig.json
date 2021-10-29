@@ -1,0 +1,16 @@
+{
+    "extends": "@tsconfig/node16/tsconfig.json",
+    "compilerOptions": {
+        "target": "ES2017",
+        "baseUrl": "./",
+        "outDir": "./build",
+        "strictPropertyInitialization": false
+    },
+    "exclude": [
+        "src/client/**/*"
+    ],
+    "include": [
+        "typings/*",
+        "src/**/*",
+    ],
+}

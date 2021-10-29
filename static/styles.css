@@ -1,0 +1,141 @@
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background: #333;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+a,
+a:visited {
+    color: #333;
+}
+
+#Body {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.column {
+    flex: 32%;
+    max-width: 32%;
+    margin: 0 4px;
+}
+
+.post {
+    padding: 12px;
+    background-color: #eee;
+    margin-bottom: 8px;
+}
+
+img {
+    margin-top: 12px;
+    vertical-align: middle;
+    width: 100%;
+    cursor: pointer;
+    transition: transform 300ms;
+}
+.success {
+    transform: scale(1.07);
+}
+.big {
+    position: fixed;
+    width: initial;
+    max-height: 100%;
+    height: 100%;
+    left: 0;
+    margin: auto;
+    overflow: auto;
+    position: fixed;
+    right: 0;
+    top: 0;
+    -o-object-fit: contain;
+    object-fit: contain;
+    z-index: 10;
+}
+
+#Overlay {
+    display: none;
+    position: fixed;
+    background: #333;
+    z-index: 3;
+    width: 100vw;
+    top: 0;
+    height: 100vh;
+}
+
+#End {
+    height: 30px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0);
+}
+
+figure {
+    margin: 0;
+}
+
+#Timer {
+    color: #222;
+    display: none;
+    position: fixed;
+    top: 2px;
+    left: 2px;
+    background-color: rgba(256, 256, 256, 0.8);
+    padding: 4px 8px;
+    border-radius: 4px;
+    z-index: 100;
+}
+
+button {
+    border: 0;
+    outline: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.fig {
+    position: relative;
+}
+
+.fig .save {
+    opacity: 0;
+    color: #5dc369;
+    transition: opacity 200ms;
+    transition: background-color 200ms;
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    cursor: pointer;
+    display: block;
+    width: 48px;
+    height: 48px;
+    background-color: rgba(29, 64, 4, 0.86);
+    border-radius: 30%;
+}
+
+.fig:hover .save:hover {
+    background-color: rgba(29, 64, 4, 1);
+}
+
+.fig:hover .save {
+    opacity: 1;
+}
+
+.prev,
+.next {
+    z-index: 50;
+    background-color: white;
+    opacity: 0.3;
+    position: fixed;
+    width: 30%;
+    height: 100vh;
+    top: 0;
+}
+
+.prev {
+    left: 0;
+}
+
+.next {
+    right: 0;
+}
