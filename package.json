@@ -1,6 +1,6 @@
 {
   "name": "numblr",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Tumblr gallery",
   "main": "build/index.js",
   "scripts": {
