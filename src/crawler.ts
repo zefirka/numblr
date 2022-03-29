@@ -80,6 +80,7 @@ export type PostMap = {
 
 export default class Crawler {
     useCache: boolean;
+    accCache: Record<string, number>;
     cache: Record<string, PostMap[][]>;
     limit: number;
 
@@ -130,11 +131,51 @@ export default class Crawler {
         };
     }
 
+    async getPostsRandom(account: string) {
+        const result = await this._getPostsRandom(account);
+
+        return {
+            items: result,
+            fromCache: false,
+        };
+    }
+
     async _getPosts(account: string, from: number) {
         try {
             const url = `https://${account}.tumblr.com/api/read?type=photo&num=${this.limit}&start=${from}`;
             console.log('Calling ' + url);
 
+            const data = await axios.get(url);
+            const xml: TumblrData = await parseStringPromise(data.data);
+
+            const posts = xml.tumblr.posts[0].post;
+
+            if (!posts || !posts.length) {
+                return [];
+            }
+
+            const result: PostMap[] = posts.map((post, i) => {
+                const meta = post.$;
+                return {
+                    idx: i,
+                    url: meta.url,
+                    reblogged: parseFromUrl(meta['reblogged-from-url']),
+                    rebloggedRoot: parseFromUrl(meta['reblogged-root-url']),
+                    photoset: post.photoset,
+                    photos: getPhotosFromPost(post),
+                };
+            });
+
+            return result;
+        } catch (err) {
+            console.error(err);
+            return [];
+        }
+    }
+
+    async _getPostsRandom(account: string) {
+        try {
+            const url = `https://${account}.tumblr.com/api/read?type=photo&num=${this.limit}&start=${0}`;
             const data = await axios.get(url);
             const xml: TumblrData = await parseStringPromise(data.data);
 

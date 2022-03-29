@@ -557,11 +557,16 @@ var Numblr = (function () {
                           }),
                       })
                           .then((d) => d.json())
-                          .then(() => {
-                          el.classList.add('success');
-                          setTimeout(() => {
-                              el.classList.remove('success');
-                          }, 500);
+                          .then((d) => {
+                          if (d.ok) {
+                              el.classList.add('success');
+                              setTimeout(() => {
+                                  el.classList.remove('success');
+                              }, 500);
+                          }
+                          else {
+                              alert(d);
+                          }
                       })
                           .catch(alert);
                   }
@@ -575,10 +580,6 @@ var Numblr = (function () {
                       }
                       else {
                           this.select(img);
-                      }
-                      this.$overlay.style.display = this.$overlay.style.display === 'block' ? 'none' : 'block';
-                      if (this.$overlay.style.display === 'none') {
-                          this.timer && clearInterval(this.timer);
                       }
                   }
               }
@@ -649,8 +650,8 @@ var Numblr = (function () {
           };
       }
       get minColIdx() {
-          const [a, b, c] = this.state.colh;
-          if (a + b + c === 0) {
+          const [a, b] = this.state.colh;
+          if (a + b === 0) {
               return ((Math.random() * 10) >> 0) % 3;
           }
           const minVal = Math.min(...this.state.colh);
@@ -720,7 +721,7 @@ var Numblr = (function () {
               });
           });
       }
-      renderPost(post, onClick, col) {
+      renderPost(post, actions, col) {
           const images = [];
           this.prefetch(post.photos);
           post.photos.forEach((url) => {
@@ -734,8 +735,11 @@ var Numblr = (function () {
                         data-idx="${this.state.imgIdx}"
                     />
                     <div class="controls">
-                        <button class="save" type="button" data-src="${url.hres}" @click=${onClick}>
+                        <button class="save" type="button" data-src="${url.hres}" @click=${actions.onClick}>
                             <i class="fas fa-save fa"></i>
+                        </button>
+                        <button class="delete" type="button" data-src="${url.hres}" @click=${actions.onDelete}>
+                            <i class="fas fa-trash fa"></i>
                         </button>
                     </div>
                 </figure>
@@ -744,19 +748,26 @@ var Numblr = (function () {
           });
           return p `
             <div class="post-imgs">${images}</div>
-            <div class="post-caption">
-                <div class="nowrap">
+            <div class="captions">
+                <div class="caption">
                     <a href="${post.url}/"><i class="fas fa-link"></i></a>
                     &nbsp;
-                    <div ?hidden=${!post.rebloggedRoot}>
-                        <i class="fas fa-user"></i>&nbsp;<a href="/account/${post.rebloggedRoot}/"
-                            >${post.rebloggedRoot}</a
-                        >
-                    </div>
+                    ${post.rebloggedRoot
+            ? p `
+                              <i class="fas fa-user"></i>
+                              <a class="acc" href="/account/${post.rebloggedRoot}/">${post.rebloggedRoot}</a>
+                          `
+            : ''}
                 </div>
-                <div class="nowrap" ?hidden=${!post.reblogged || post.rebloggedRoot === post.reblogged}>
-                    <i class="fas fa-share-square"></i>&nbsp;<a href="/account/${post.reblogged}/">${post.reblogged}</a>
-                </div>
+                ${post.reblogged && post.rebloggedRoot !== post.reblogged
+            ? p `
+                          <div class="caption">
+                              <i class="fas fa-share-square"></i>&nbsp;<a class="acc" href="/account/${post.reblogged}/"
+                                  >${post.reblogged}</a
+                              >
+                          </div>
+                      `
+            : ''}
             </div>
         `;
       }
@@ -777,9 +788,25 @@ var Numblr = (function () {
               postElem.classList.add('post');
               const col = this.minColIdx;
               const tpl = this.renderPost(post, {
-                  handleEvent: (e) => {
-                      const url = e.target.dataset['src'] || '';
-                      this.downloadDirect(url);
+                  onClick: {
+                      handleEvent: (e) => {
+                          let elem = e.target;
+                          if (elem.tagName === 'I') {
+                              elem = elem.parentElement;
+                          }
+                          const url = elem.dataset['src'] || '';
+                          this.downloadDirect(url);
+                      },
+                  },
+                  onDelete: {
+                      handleEvent: (e) => {
+                          let elem = e.target;
+                          if (elem.tagName === 'I') {
+                              elem = elem.parentElement;
+                          }
+                          const url = elem.dataset['src'] || '';
+                          this.deleteImage(url);
+                      },
                   },
               }, col);
               w(tpl, postElem);
@@ -792,6 +819,16 @@ var Numblr = (function () {
                       img.onload = null;
                   };
               });
+          });
+      }
+      deleteImage(url) {
+          const name = url.split('/').pop();
+          fetch('/delete', {
+              method: 'POST',
+              body: JSON.stringify({ image: name }),
+              headers: {
+                  'Content-Type': 'application/json',
+              },
           });
       }
       async loadNext() {
@@ -833,9 +870,12 @@ var Numblr = (function () {
               this.swap(el, 1);
               el.classList.add('big');
               this.$timer.$.style.display = 'block';
+              this.$overlay.style.display = 'block';
           }
           else {
               this.$timer.$.style.display = 'none';
+              this.$overlay.style.display = 'none';
+              this.timer && clearInterval(this.timer);
           }
       }
   }

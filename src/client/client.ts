@@ -71,8 +71,8 @@ class App {
     }
 
     get minColIdx() {
-        const [a, b, c] = this.state.colh;
-        if (a + b + c === 0) {
+        const [a, b] = this.state.colh;
+        if (a + b === 0) {
             return ((Math.random() * 10) >> 0) % 3;
         }
         const minVal = Math.min(...this.state.colh);
@@ -116,11 +116,15 @@ class App {
                     }),
                 })
                     .then((d) => d.json())
-                    .then(() => {
-                        el.classList.add('success');
-                        setTimeout(() => {
-                            el.classList.remove('success');
-                        }, 500);
+                    .then((d: {ok: boolean}) => {
+                        if (d.ok) {
+                            el.classList.add('success');
+                            setTimeout(() => {
+                                el.classList.remove('success');
+                            }, 500);
+                        } else {
+                            alert(d);
+                        }
                     })
                     .catch(alert);
             } else if (e.altKey) {
@@ -131,10 +135,6 @@ class App {
                     this.select();
                 } else {
                     this.select(img);
-                }
-                this.$overlay.style.display = this.$overlay.style.display === 'block' ? 'none' : 'block';
-                if (this.$overlay.style.display === 'none') {
-                    this.timer && clearInterval(this.timer);
                 }
             }
         }
@@ -246,7 +246,7 @@ class App {
         });
     }
 
-    private renderPost(post: PostMap, onClick: {handleEvent: (e: MouseEvent) => void}, col: number) {
+    private renderPost(post: PostMap, actions: Record<string, {handleEvent: (e: MouseEvent) => void}>, col: number) {
         const images: TemplateResult[] = [];
         this.prefetch(post.photos);
         post.photos.forEach((url) => {
@@ -260,8 +260,11 @@ class App {
                         data-idx="${this.state.imgIdx}"
                     />
                     <div class="controls">
-                        <button class="save" type="button" data-src="${url.hres}" @click=${onClick}>
+                        <button class="save" type="button" data-src="${url.hres}" @click=${actions.onClick}>
                             <i class="fas fa-save fa"></i>
+                        </button>
+                        <button class="delete" type="button" data-src="${url.hres}" @click=${actions.onDelete}>
+                            <i class="fas fa-trash fa"></i>
                         </button>
                     </div>
                 </figure>
@@ -271,19 +274,26 @@ class App {
 
         return html`
             <div class="post-imgs">${images}</div>
-            <div class="post-caption">
-                <div class="nowrap">
+            <div class="captions">
+                <div class="caption">
                     <a href="${post.url}/"><i class="fas fa-link"></i></a>
                     &nbsp;
-                    <div ?hidden=${!post.rebloggedRoot}>
-                        <i class="fas fa-user"></i>&nbsp;<a href="/account/${post.rebloggedRoot}/"
-                            >${post.rebloggedRoot}</a
-                        >
-                    </div>
+                    ${post.rebloggedRoot
+                        ? html`
+                              <i class="fas fa-user"></i>
+                              <a class="acc" href="/account/${post.rebloggedRoot}/">${post.rebloggedRoot}</a>
+                          `
+                        : ''}
                 </div>
-                <div class="nowrap" ?hidden=${!post.reblogged || post.rebloggedRoot === post.reblogged}>
-                    <i class="fas fa-share-square"></i>&nbsp;<a href="/account/${post.reblogged}/">${post.reblogged}</a>
-                </div>
+                ${post.reblogged && post.rebloggedRoot !== post.reblogged
+                    ? html`
+                          <div class="caption">
+                              <i class="fas fa-share-square"></i>&nbsp;<a class="acc" href="/account/${post.reblogged}/"
+                                  >${post.reblogged}</a
+                              >
+                          </div>
+                      `
+                    : ''}
             </div>
         `;
     }
@@ -310,9 +320,27 @@ class App {
             const tpl = this.renderPost(
                 post,
                 {
-                    handleEvent: (e: MouseEvent) => {
-                        const url = (e.target as HTMLElement).dataset['src'] || '';
-                        this.downloadDirect(url);
+                    onClick: {
+                        handleEvent: (e: MouseEvent) => {
+                            let elem = e.target as HTMLElement;
+
+                            if (elem.tagName === 'I') {
+                                elem = elem.parentElement as HTMLElement;
+                            }
+                            const url = elem.dataset['src'] || '';
+                            this.downloadDirect(url);
+                        },
+                    },
+                    onDelete: {
+                        handleEvent: (e: MouseEvent) => {
+                            let elem = e.target as HTMLElement;
+
+                            if (elem.tagName === 'I') {
+                                elem = elem.parentElement as HTMLElement;
+                            }
+                            const url = elem.dataset['src'] || '';
+                            this.deleteImage(url);
+                        },
                     },
                 },
                 col,
@@ -330,6 +358,18 @@ class App {
                     img.onload = null;
                 };
             });
+        });
+    }
+
+    private deleteImage(url: string) {
+        const name = url.split('/').pop() as string;
+
+        fetch('/delete', {
+            method: 'POST',
+            body: JSON.stringify({image: name}),
+            headers: {
+                'Content-Type': 'application/json',
+            },
         });
     }
 
@@ -376,8 +416,11 @@ class App {
             this.swap(el, 1);
             el.classList.add('big');
             this.$timer.$.style.display = 'block';
+            this.$overlay.style.display = 'block';
         } else {
             this.$timer.$.style.display = 'none';
+            this.$overlay.style.display = 'none';
+            this.timer && clearInterval(this.timer);
         }
     }
 }

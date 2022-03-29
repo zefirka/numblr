@@ -48,8 +48,9 @@ a:visited {
 }
 
 .column {
-    flex: 32%;
-    max-width: 32%;
+    flex: 50%;
+    flex-wrap: nowrap;
+    max-width: 50%;
     margin: 0 4px;
 }
 
@@ -117,8 +118,8 @@ a:visited {
     color: #222;
     display: none;
     position: fixed;
-    top: 2px;
-    left: 2px;
+    top: 4px;
+    left: 4px;
     background-color: rgba(256, 256, 256, 0.8);
     padding: 4px 8px;
     border-radius: 4px;
@@ -179,6 +180,7 @@ button {
     right: 0;
 }
 
+/** Globals */
 [hidden] {
     display: none !important;
 }
@@ -187,33 +189,40 @@ button {
     white-space: nowrap;
 }
 
-.post-caption {
+.captions {
     position: relative;
     display: flex;
-    font-size: 18px;
+    font-size: 17px;
     flex-direction: row;
     margin-top: 8px;
     justify-content: space-between;
-}
-.post-caption > div {
-    display: flex;
-    flex-direction: row;
-    max-width: 40%;
-}
 
-.post-caption > div a {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-.post-caption > div a:hover {
-    overflow: visible;
-    background-color: #eee;
-    z-index: 2;
-}
+    .caption {
+        display: flex;
+        flex-direction: row;
+        white-space: nowrap;
+        flex-wrap: nowrap;
+        max-width: 40%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        position: relative;
 
-.post-caption > div:hover {
-    overflow: visible;
+        &:hover {
+            overflow: visible;
+        }
+
+        .acc {
+            margin-left: 2px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            background-color: #eee;
+            z-index: 2;
+
+            &:hover {
+                overflow: visible;
+            }
+        }
+    }
 }
 
 /** Spinner */
@@ -223,6 +232,7 @@ button {
     width: 80px;
     height: 80px;
 }
+
 .spiner div {
     position: absolute;
     top: 33px;
@@ -232,22 +242,27 @@ button {
     background: #fff;
     animation-timing-function: cubic-bezier(0, 1, 1, 0);
 }
+
 .spiner div:nth-child(1) {
     left: 8px;
     animation: spiner1 0.6s infinite;
 }
+
 .spiner div:nth-child(2) {
     left: 8px;
     animation: spiner2 0.6s infinite;
 }
+
 .spiner div:nth-child(3) {
     left: 32px;
     animation: spiner2 0.6s infinite;
 }
+
 .spiner div:nth-child(4) {
     left: 56px;
     animation: spiner3 0.6s infinite;
 }
+
 @keyframes spiner1 {
     0% {
         transform: scale(0);
@@ -256,6 +271,7 @@ button {
         transform: scale(1);
     }
 }
+
 @keyframes spiner3 {
     0% {
         transform: scale(1);
@@ -264,6 +280,7 @@ button {
         transform: scale(0);
     }
 }
+
 @keyframes spiner2 {
     0% {
         transform: translate(0, 0);

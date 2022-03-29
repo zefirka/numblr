@@ -39,8 +39,9 @@ a:visited {
   flex-wrap: nowrap; }
 
 .column {
-  flex: 32%;
-  max-width: 32%;
+  flex: 50%;
+  flex-wrap: nowrap;
+  max-width: 50%;
   margin: 0 4px; }
 
 .post {
@@ -99,8 +100,8 @@ a:visited {
   color: #222;
   display: none;
   position: fixed;
-  top: 2px;
-  left: 2px;
+  top: 4px;
+  left: 4px;
   background-color: rgba(255, 255, 255, 0.8);
   padding: 4px 8px;
   border-radius: 4px;
@@ -149,37 +150,39 @@ button {
 .next {
   right: 0; }
 
+/** Globals */
 [hidden] {
   display: none !important; }
 
 .nowrap {
   white-space: nowrap; }
 
-.post-caption {
+.captions {
   position: relative;
   display: flex;
-  font-size: 18px;
+  font-size: 17px;
   flex-direction: row;
   margin-top: 8px;
   justify-content: space-between; }
-
-.post-caption > div {
-  display: flex;
-  flex-direction: row;
-  max-width: 40%; }
-
-.post-caption > div a {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden; }
-
-.post-caption > div a:hover {
-  overflow: visible;
-  background-color: #eee;
-  z-index: 2; }
-
-.post-caption > div:hover {
-  overflow: visible; }
+  .captions .caption {
+    display: flex;
+    flex-direction: row;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 40%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative; }
+    .captions .caption:hover {
+      overflow: visible; }
+    .captions .caption .acc {
+      margin-left: 2px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      background-color: #eee;
+      z-index: 2; }
+      .captions .caption .acc:hover {
+        overflow: visible; }
 
 /** Spinner */
 .spiner {
